@@ -797,7 +797,7 @@ public class ProgramLifecycleHttpHandler extends AbstractAppFabricHttpHandler {
       Iterator<ProgramScheduleRecord> iterator = schedules.iterator();
       while (iterator.hasNext()) {
         // Remove the schedule if its trigger type does not match the given type
-        if (!((ProtoTrigger) iterator.next().getSchedule().getTrigger()).getType().equals(type)) {
+        if (!iterator.next().getSchedule().getTrigger().getType().equals(type)) {
           iterator.remove();
         }
       }
