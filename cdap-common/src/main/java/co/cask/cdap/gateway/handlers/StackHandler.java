@@ -22,11 +22,16 @@ import co.cask.http.HttpResponder;
 import org.jboss.netty.handler.codec.http.HttpRequest;
 import org.jboss.netty.handler.codec.http.HttpResponseStatus;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 
 /**
  * Returns information about threads, including their stack traces.
@@ -34,57 +39,58 @@ import javax.ws.rs.Path;
 public class StackHandler extends AbstractHttpHandler {
 
   private static final ThreadMXBean THREAD_MX_BEAN = ManagementFactory.getThreadMXBean();
-  private static final int STACK_DEPTH = 20;
 
   @Path(Constants.Gateway.API_VERSION_3 + "/system/services/{service-name}/stacks")
   @GET
-  public void stacks(HttpRequest request, HttpResponder responder) {
-    // ignore the service-name, since we dont need it. its only used for routing
-    responder.sendString(HttpResponseStatus.OK, getThreadInfo());
+  public void stacks(HttpRequest request, HttpResponder responder,
+                     @PathParam("service-name") String serviceName,
+                     @QueryParam("depth") @DefaultValue("20") int depth) {
+    StringWriter stringWriter = new StringWriter();
+    getThreadInfo(new PrintWriter(stringWriter), serviceName, depth);
+    responder.sendString(HttpResponseStatus.OK, stringWriter.toString());
   }
 
   /**
    * Print all of the thread's information and stack traces.
    */
-  private synchronized String getThreadInfo() {
+  private synchronized void getThreadInfo(PrintWriter stream, String serviceName, int depth) {
     boolean contention = THREAD_MX_BEAN.isThreadContentionMonitoringEnabled();
     long[] threadIds = THREAD_MX_BEAN.getAllThreadIds();
-    StringBuilder stringBuilder = new StringBuilder();
-    println(stringBuilder, "Process Thread Dump:");
-    println(stringBuilder, threadIds.length + " active threads");
+    println(stream, "Process Thread Dump: %s", serviceName);
+    println(stream, "%s active threads", threadIds.length);
     for (long tid : threadIds) {
-      ThreadInfo info = THREAD_MX_BEAN.getThreadInfo(tid, STACK_DEPTH);
+      ThreadInfo info = THREAD_MX_BEAN.getThreadInfo(tid, depth);
       if (info == null) {
-        println(stringBuilder, "  Inactive");
+        stream.println("  Inactive");
         continue;
       }
-      println(stringBuilder, "Thread " +
-                       getTaskName(info.getThreadId(), info.getThreadName()) + ":");
+      println(stream, "Thread %s",
+              getTaskName(info.getThreadId(), info.getThreadName()) + ":");
       Thread.State state = info.getThreadState();
-      println(stringBuilder, "  State: " + state);
-      println(stringBuilder, "  Blocked count: " + info.getBlockedCount());
-      println(stringBuilder, "  Waited count: " + info.getWaitedCount());
+      println(stream, "  State: %s", state);
+      println(stream, "  Blocked count: %s", info.getBlockedCount());
+      println(stream, "  Waited count: %s", info.getWaitedCount());
       if (contention) {
-        println(stringBuilder, "  Blocked time: " + info.getBlockedTime());
-        println(stringBuilder, "  Waited time: " + info.getWaitedTime());
+        println(stream, "  Blocked time: %s", info.getBlockedTime());
+        println(stream, "  Waited time: %s", info.getWaitedTime());
       }
       if (state == Thread.State.WAITING) {
-        println(stringBuilder, "  Waiting on " + info.getLockName());
+        println(stream, "  Waiting on %s", info.getLockName());
       } else if (state == Thread.State.BLOCKED) {
-        println(stringBuilder, "  Blocked on " + info.getLockName());
-        println(stringBuilder, "  Blocked by " +
+        println(stream, "  Blocked on %s", info.getLockName());
+        println(stream, "  Blocked by %s",
                          getTaskName(info.getLockOwnerId(), info.getLockOwnerName()));
       }
-      println(stringBuilder, "  Stack:");
+      println(stream, "  Stack:");
       for (StackTraceElement frame : info.getStackTrace()) {
-        println(stringBuilder, "    " + frame.toString());
+        println(stream, "    %s", frame.toString());
       }
     }
-    return stringBuilder.toString();
+    stream.flush();
   }
 
-  private void println(StringBuilder stringBuilder, String toAppend) {
-    stringBuilder.append(toAppend).append("\n");
+  private void println(PrintWriter stream, String format, Object... args) {
+    stream.printf(format, args).println();
   }
 
   private String getTaskName(long id, String name) {
