@@ -16,7 +16,12 @@
 
 package co.cask.cdap.gateway.handlers;
 
+import co.cask.cdap.common.conf.CConfiguration;
 import co.cask.cdap.common.conf.Constants;
+import co.cask.cdap.common.security.AuthEnforce;
+import co.cask.cdap.proto.id.InstanceId;
+import co.cask.cdap.proto.id.NamespaceId;
+import co.cask.cdap.proto.security.Action;
 import co.cask.http.AbstractHttpHandler;
 import co.cask.http.HttpResponder;
 import org.jboss.netty.handler.codec.http.HttpRequest;
@@ -40,8 +45,17 @@ public class StackHandler extends AbstractHttpHandler {
 
   private static final ThreadMXBean THREAD_MX_BEAN = ManagementFactory.getThreadMXBean();
 
-  @Path(Constants.Gateway.API_VERSION_3 + "/system/services/{service-name}/stacks")
+  // this field needs to be named 'instanceId' and cannot be a local variable, because its used by @AuthEnforce below
+  @SuppressWarnings("unused")
+  private final String instanceId;
+
+  public StackHandler(CConfiguration cConf) {
+    instanceId = cConf.get(Constants.INSTANCE_NAME);
+  }
+
   @GET
+  @Path(Constants.Gateway.API_VERSION_3 + "/system/services/{service-name}/stacks")
+  @AuthEnforce(entities = "instanceId", enforceOn = InstanceId.class, actions = Action.ADMIN)
   public void stacks(HttpRequest request, HttpResponder responder,
                      @PathParam("service-name") String serviceName,
                      @QueryParam("depth") @DefaultValue("20") int depth) {

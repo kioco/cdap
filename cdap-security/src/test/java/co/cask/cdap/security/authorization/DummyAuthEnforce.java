@@ -106,7 +106,7 @@ public class DummyAuthEnforce {
     }
 
     // tests that when a method parameter has Named annotation same as class field name and when specified in
-    // AuthEnforce entities method parameter gets prefernce
+    // AuthEnforce entities method parameter gets preference
     @AuthEnforce(entities = "someEntity", enforceOn = InstanceId.class, actions = Action.ADMIN)
     public void testParaPreference(@Name("someEntity") InstanceId instanceId) throws Exception {
       // the above annotation will call enforce after class rewrite which should throw an exception.
