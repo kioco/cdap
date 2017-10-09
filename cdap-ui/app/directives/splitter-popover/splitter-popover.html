@@ -20,7 +20,7 @@
       <span class="port-name">{{ port.name | caskCapitalizeFilter }}</span>
       <div class="endpoint-circle"
             ng-class="{'disabled': isDisabled}"
-            ng-attr-id="{{nodeName + '_splitter_' + port.name}}">
+            ng-attr-id="{{nodeName + '_port_' + port.name}}">
         <div class="endpoint-caret" ng-if="!isDisabled"></div>
       </div>
     </div>

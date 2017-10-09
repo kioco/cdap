@@ -51,7 +51,9 @@ angular.module(PKG.name + '.commons')
 
           splitterPopover.$promise
             .then(function () {
-              splitterPopover.show();
+              if (splitterPopover && typeof splitterPopover.show === 'function') {
+                splitterPopover.show();
+              }
             });
         };
 
@@ -63,9 +65,7 @@ angular.module(PKG.name + '.commons')
           splitterPopover = null;
         };
 
-        showPopover();
         scope.$watch('ports', () => {
-          console.log(scope.nodeName);
           hidePopover();
           showPopover();
         });

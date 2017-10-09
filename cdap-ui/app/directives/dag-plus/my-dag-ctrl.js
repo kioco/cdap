@@ -355,7 +355,7 @@ angular.module(PKG.name + '.commons')
       }
 
       angular.forEach(node.outputSchema, (outputSchema) => {
-        let domCircleElId = node.name + '_splitter_' + outputSchema.name;
+        let domCircleElId = node.name + '_port_' + outputSchema.name;
 
         let splitterEndpoint = vm.instance.addEndpoint(domCircleElId, {
           anchor: 'Center',
@@ -412,12 +412,12 @@ angular.module(PKG.name + '.commons')
         to: newConnObj.targetId
       };
 
-      if (newConnObj.sourceId.indexOf('_condition_') !== -1 || newConnObj.sourceId.indexOf('_splitter_') !== -1) {
+      if (newConnObj.sourceId.indexOf('_condition_') !== -1 || newConnObj.sourceId.indexOf('_port_') !== -1) {
         let sourceIdSplit = newConnObj.sourceId.split('_');
 
         if (newConnObj.sourceId.indexOf('_condition_') !== -1) {
           connection.condition = sourceIdSplit[2] === 'true';
-        } else if (newConnObj.sourceId.indexOf('_splitter_') !== -1) {
+        } else if (newConnObj.sourceId.indexOf('_port_') !== -1) {
           connection.port = sourceIdSplit[2];
         }
         connection.from = sourceIdSplit[0];
@@ -428,7 +428,7 @@ angular.module(PKG.name + '.commons')
     }
 
     function removeConnection(detachedConnObj, updateStore = true) {
-      if (detachedConnObj.sourceId.indexOf('_condition_') !== -1 || detachedConnObj.sourceId.indexOf('_splitter_') !== -1) {
+      if (detachedConnObj.sourceId.indexOf('_condition_') !== -1 || detachedConnObj.sourceId.indexOf('_port_') !== -1) {
         detachedConnObj.sourceId = detachedConnObj.sourceId.split('_')[0];
       }
       var connectionIndex = _.findIndex($scope.connections, function (conn) {
@@ -564,7 +564,7 @@ angular.module(PKG.name + '.commons')
       // return false if connection already exists, which will prevent the connecton from being formed
       if (connectionDropped) { return false; }
 
-      if (connObj.sourceId.indexOf('_condition_') !== -1 || connObj.sourceId.indexOf('_splitter_') !== -1) {
+      if (connObj.sourceId.indexOf('_condition_') !== -1 || connObj.sourceId.indexOf('_port_') !== -1) {
         connObj.sourceId = connObj.sourceId.split('_')[0];
       }
 
