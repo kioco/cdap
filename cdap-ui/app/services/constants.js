@@ -135,7 +135,7 @@ angular.module(PKG.name + '.services')
       'cdap-data-streams': 'sparkstreaming'
     },
 
-    schemaRecordName: 'etlSchemaBody',
+    defaultSchemaName: 'etlSchemaBody',
 
     'en': {
       hydrator: {

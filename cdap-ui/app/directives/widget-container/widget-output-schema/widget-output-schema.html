@@ -14,89 +14,39 @@
   the License.
 -->
 
-<div ng-if="MyOutputSchemaCtrl.outputSchemas.length > 1">
-  <div ng-repeat="outputSchema in MyOutputSchemaCtrl.outputSchemas">
-    <div ng-click="MyOutputSchemaCtrl.currentIndex = $index" style="cursor:pointer" class="title">
-      <i class="fa" ng-class="{'fa-arrow-right': MyOutputSchemaCtrl.currentIndex !== $index, 'fa-arrow-down': MyOutputSchemaCtrl.currentIndex === $index}"></i>
-      <span>{{outputSchema.name}}</span>
-    </div>
-    <div class="content" ng-class="{'hide': MyInputSchemaCtrl.currentIndex !== $index, '': MyInputSchemaCtrl.currentIndex === $index}">
-      <div ng-if="isDisabled">
-        <my-complex-schema-editor
-          ng-if="!schemaAdvance"
-          ng-model="outputSchema.schema"
-          is-disabled="true"
-          plugin-name="node.plugin.name">
-        </my-complex-schema-editor>
-      </div>
-      <div ng-if="!isDisabled">
-        <my-complex-schema-editor
-          ng-if="!schemaAdvance"
-          ng-model="outputSchema.schema"
-          input-schema="node.inputSchema"
-          is-disabled="groupsConfig.outputSchema.implicitSchema"
-          plugin-properties="node.plugin.properties"
-          config="groupsConfig.outputSchema.schemaProperties"
-          plugin-name="node.plugin.name"
-          update-output-schema="updateDefaultOutputSchema(outputSchema)"
-          on-change="MyOutputSchemaCtrl.onOutputSchemaChange(newOutputSchema, $index)"
-          is-in-studio="true">
-        </my-complex-schema-editor>
-      </div>
-      <div ng-if="schemaAdvance">
-        <textarea
-          class="form-control"
-          ng-model="outputSchema.schema"
-          ng-disabled="isDisabled">
-        </textarea>
-        <span class="badge macro-indicator pull-right"
-              uib-tooltip="A placeholder that will be substituted at runtime. eg. ${placeholder} or ${secure(key)}"
-              tooltip-append-to-body="true"
-              tooltip-popup-delay="300"
-              tooltip-placement="left">
-          Macro
-        </span>
-      </div>
-    </div>
-  </div>
+<div ng-if="isDisabled">
+  <my-complex-schema-editor
+    ng-if="!schemaAdvance"
+    schemas="MyOutputSchemaCtrl.outputSchemas"
+    is-disabled="true"
+    plugin-name="node.plugin.name">
+  </my-complex-schema-editor>
 </div>
-<div ng-if="MyOutputSchemaCtrl.outputSchemas.length <= 1">
-  <div ng-if="isDisabled">
-    <my-complex-schema-editor
-      ng-if="!schemaAdvance"
-      ng-model="MyOutputSchemaCtrl.outputSchemas[0].schema"
-      is-disabled="true"
-      plugin-name="node.plugin.name">
-    </my-complex-schema-editor>
-  </div>
-  <div ng-if="!isDisabled">
-    <!-- <pre>{{MyOutputSchemaCtrl.outputSchemas[0].schema | json:2}}</pre> -->
-    <my-complex-schema-editor
-      ng-if="!schemaAdvance"
-      ng-model="MyOutputSchemaCtrl.outputSchemas[0].schema"
-      input-schema="node.inputSchema"
-      is-disabled="groupsConfig.outputSchema.implicitSchema"
-      plugin-properties="node.plugin.properties"
-      config="groupsConfig.outputSchema.schemaProperties"
-      plugin-name="node.plugin.name"
-      update-output-schema="updateDefaultOutputSchema({outputSchema: outputSchema})"
-      on-change="MyOutputSchemaCtrl.onOutputSchemaChange(newOutputSchema, 0)"
-      is-in-studio="true">
-    </my-complex-schema-editor>
-  </div>
-  <div ng-if="schemaAdvance">
-    <textarea
-      class="form-control"
-      ng-model="MyOutputSchemaCtrl.outputSchemas[0].schema"
-      ng-disabled="isDisabled">
-    </textarea>
-    <span class="badge macro-indicator pull-right"
-          uib-tooltip="A placeholder that will be substituted at runtime. eg. ${placeholder} or ${secure(key)}"
-          tooltip-append-to-body="true"
-          tooltip-popup-delay="300"
-          tooltip-placement="left">
-      Macro
-    </span>
-  </div>
+<div ng-if="!isDisabled">
+  <my-complex-schema-editor
+    ng-if="!schemaAdvance"
+    schemas="MyOutputSchemaCtrl.outputSchemas"
+    input-schema="node.inputSchema"
+    is-disabled="groupsConfig.outputSchema.implicitSchema"
+    plugin-properties="node.plugin.properties"
+    config="groupsConfig.outputSchema.schemaProperties"
+    plugin-name="node.plugin.name"
+    update-default-output-schema="updateDefaultOutputSchema({outputSchema: outputSchema})"
+    on-change="MyOutputSchemaCtrl.onOutputSchemaChange(newOutputSchemas)"
+    is-in-studio="true">
+  </my-complex-schema-editor>
 </div>
-
+<div ng-if="schemaAdvance">
+  <textarea
+    class="form-control"
+    schemas="MyOutputSchemaCtrl.outputSchemas"
+    ng-disabled="isDisabled">
+  </textarea>
+  <span class="badge macro-indicator pull-right"
+        uib-tooltip="A placeholder that will be substituted at runtime. eg. ${placeholder} or ${secure(key)}"
+        tooltip-append-to-body="true"
+        tooltip-popup-delay="300"
+        tooltip-placement="left">
+    Macro
+  </span>
+</div>

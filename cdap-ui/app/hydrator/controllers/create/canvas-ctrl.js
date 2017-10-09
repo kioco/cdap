@@ -120,10 +120,6 @@ class HydratorPlusPlusCreateCanvasCtrl {
     this.DAGPlusPlusNodesActionsFactory.resetSelectedNode();
     this.setStateAndUpdateConfigStore();
   }
-
-  generateSchemaOnEdge(sourceId) {
-    return this.HydratorPlusPlusHydratorService.generateSchemaOnEdge(sourceId);
-  }
 }
 HydratorPlusPlusCreateCanvasCtrl.$inject = ['DAGPlusPlusNodesStore', 'HydratorPlusPlusConfigStore', 'HydratorPlusPlusHydratorService', '$uibModal', 'GLOBALS', 'DAGPlusPlusNodesActionsFactory', 'HydratorPlusPlusPreviewStore', '$scope'];
 

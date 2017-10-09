@@ -88,7 +88,7 @@ angular.module(PKG.name + '.feature.hydrator')
                 let artifactVersion = HydratorPlusPlusDetailNonRunsStore.getArtifact().version;
                 let sourceConn = HydratorPlusPlusDetailNonRunsStore
                   .getSourceNodes(pluginId)
-                  .filter( node => typeof node.outputSchema === 'string');
+                  .filter(node => Array.isArray(node.outputSchema));
                 return HydratorPlusPlusNodeService
                   .getPluginInfo(pluginNode, appType, sourceConn, artifactVersion)
                   .then((nodeWithInfo) => (
@@ -112,10 +112,6 @@ angular.module(PKG.name + '.feature.hydrator')
 
     this.deleteNode = () => {
       this.DAGPlusPlusNodesActionsFactory.resetSelectedNode();
-    };
-
-    this.generateSchemaOnEdge = function (sourceId) {
-      return this.HydratorPlusPlusHydratorService.generateSchemaOnEdge(sourceId);
     };
 
     function convertMetricsArrayIntoObject(arr) {

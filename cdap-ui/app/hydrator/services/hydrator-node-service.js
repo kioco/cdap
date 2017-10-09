@@ -107,8 +107,9 @@ class HydratorPlusPlusNodeService {
 
   getOutputSchemaObj(schema, schemaObjName) {
     if (!schemaObjName) {
-      schemaObjName = this.GLOBALS.schemaRecordName;
+      schemaObjName = this.GLOBALS.defaultSchemaName;
     }
+
     return {
       name: schemaObjName,
       schema

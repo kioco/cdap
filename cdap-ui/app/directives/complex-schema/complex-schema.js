@@ -14,7 +14,7 @@
  * the License.
  */
 
-function ComplexSchemaController (avsc, SCHEMA_TYPES, $scope, uuid, $timeout, SchemaHelper, EventPipe) {
+function ComplexSchemaController (avsc, SCHEMA_TYPES, $scope, uuid, $timeout, SchemaHelper) {
   'ngInject';
   var vm = this;
 
@@ -76,13 +76,19 @@ function ComplexSchemaController (avsc, SCHEMA_TYPES, $scope, uuid, $timeout, Sc
       if (name){
         data.push({
           'name': name,
-          'type': 'string'
+          'type': 'string',
+          displayType: 'string',
+          nullable: false,
+          id: uuid.v4(),
+          nested: false
         });
       }
     });
 
     document.getElementsByClassName('bottompanel-body')[0].scrollTop = 0;
-    EventPipe.emit('schema.import', JSON.stringify(data), true);
+
+    vm.parsedSchema = vm.parsedSchema.concat(data);
+    vm.formatOutput();
   };
 
   function init(strJson) {
@@ -106,6 +112,14 @@ function ComplexSchemaController (avsc, SCHEMA_TYPES, $scope, uuid, $timeout, Sc
     if (isEmptySchema(strJson) && vm.isDisabled) {
       vm.emptySchema = true;
       return;
+    }
+    // TODO: for splitters, the backend returns port names similar to [schemaName].string or [schemaName].int.
+    // However, some weird parsing code in the avsc library doesn't allow primitive type names to be after periods(.),
+    // so we have to manually make this change here. Ideally the backend should provide a different syntax for port
+    // names so that we don't have to do this hack in the UI.
+
+    if (strJson.name) {
+      strJson.name = strJson.name.replace('.', '.type');
     }
     let parsed = avsc.parse(strJson, { wrapUnions: true });
     recordName = vm.recordName || parsed._name;

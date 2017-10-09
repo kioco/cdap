@@ -15,39 +15,29 @@
 */
 angular.module(PKG.name + '.commons')
   .controller('MyOutputSchemaCtrl', function($scope, GLOBALS) {
-    let vm = this;
-
-    const parseOutputSchema = () => {
-      vm.outputSchemas = $scope.node.outputSchema
-        .map((node) => {
-          var schema = node.schema;
-          if (typeof schema === 'string') {
-            try {
-              schema = JSON.parse(schema);
-            } catch(e) {
-              schema = {
-                'name': GLOBALS.schemaRecordName,
-                'type': 'record',
-                'fields': []
-              };
-            }
+    this.outputSchemas = $scope.node.outputSchema
+      .map((node) => {
+        var schema = node.schema;
+        if (typeof schema === 'string') {
+          try {
+            schema = JSON.parse(schema);
+          } catch(e) {
+            schema = {
+              'name': GLOBALS.defaultSchemaName,
+              'type': 'record',
+              'fields': []
+            };
           }
-          return {
-            name: node.name,
-            schema: schema
-          };
-        });
-      };
+        }
+        return {
+          name: node.name,
+          schema: schema
+        };
+      });
 
     this.currentIndex = 0;
 
-    parseOutputSchema();
-
-    $scope.$watch('node.outputSchema', () => {
-      parseOutputSchema();
-    });
-
-    this.onOutputSchemaChange = (newOutputSchema, index) => {
-      $scope.node.outputSchema[index].schema = newOutputSchema;
+    this.onOutputSchemaChange = (newOutputSchemas) => {
+      $scope.node.outputSchema = newOutputSchemas;
     };
   });

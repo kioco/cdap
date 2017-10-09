@@ -300,12 +300,12 @@ class HydratorPlusPlusNodeConfigCtrl {
                 if (pluginProperties[schemaProperty]) {
                   this.state.node.outputSchema = pluginProperties[schemaProperty];
                 } else if (pluginProperties[schemaProperty] !== this.state.node.outputSchema) {
-                  this.state.node.plugin.properties[configOutputSchema.outputSchemaProperty[0]] = this.state.node.outputSchema;
+                  this.state.node.plugin.properties[configOutputSchema.outputSchemaProperty[0]] = this.state.node.outputSchema[0].schema;
                 }
                 this.state.watchers.push(
                   this.$scope.$watch('HydratorPlusPlusNodeConfigCtrl.state.node.outputSchema', () => {
                     if (this.validateSchema()) {
-                      this.state.node.plugin.properties[configOutputSchema.outputSchemaProperty[0]] = this.state.node.outputSchema;
+                      this.state.node.plugin.properties[configOutputSchema.outputSchemaProperty[0]] = this.state.node.outputSchema[0].schema;
                     }
                   })
                 );
@@ -325,6 +325,9 @@ class HydratorPlusPlusNodeConfigCtrl {
             }
             if (!this.state.node.outputSchema || this.state.node.type === 'condition') {
               let inputSchema = this.myHelpers.objectQuery(this.state.node, 'inputSchema', 0, 'schema') || '';
+              if (typeof inputSchema !== 'string') {
+                inputSchema = JSON.stringify(inputSchema);
+              }
               this.state.node.outputSchema = [this.HydratorPlusPlusNodeService.getOutputSchemaObj(inputSchema)];
             }
             if (!this.state.node.plugin.label) {

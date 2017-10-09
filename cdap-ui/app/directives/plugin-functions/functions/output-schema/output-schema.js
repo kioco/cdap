@@ -89,13 +89,13 @@ angular.module(PKG.name + '.commons')
 
               const parseResSchema = (res) => {
                 if (res.name && res.type && res.fields) {
-                  return [HydratorPlusPlusNodeService.getOutputSchemaObj(JSON.stringify(res))];
+                  return [HydratorPlusPlusNodeService.getOutputSchemaObj(res)];
                 }
 
                 let schemaArr = [];
                 angular.forEach(res, (value, key) => {
                   if (value.name && value.type && value.fields) {
-                    schemaArr.push(HydratorPlusPlusNodeService.getOutputSchemaObj(JSON.stringify(value), key));
+                    schemaArr.push(HydratorPlusPlusNodeService.getOutputSchemaObj(value, key));
                   }
                 });
                 return schemaArr;
@@ -185,8 +185,7 @@ angular.module(PKG.name + '.commons')
           });
 
           modal.result.then(function (obj) {
-            vm.node.outputSchema = obj.schemas;
-            // EventPipe.emit('schema.import', JSON.stringify(obj.schema));
+            EventPipe.emit('schema.import', obj.schemas);
           });
         };
 
