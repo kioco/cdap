@@ -353,6 +353,10 @@ angular.module(PKG.name + '.commons')
         return;
       }
 
+      if (splitterTimeout) {
+        $timeout.cancel(splitterTimeout);
+      }
+
       splitterTimeout = $timeout(() => {
         angular.forEach(node.outputSchema, (outputSchema) => {
           let domCircleElId = node.name + '_port_' + outputSchema.name;
@@ -364,10 +368,6 @@ angular.module(PKG.name + '.commons')
 
           let splitterEndpoint;
 
-          if (splitterTimeout) {
-            $timeout.cancel(splitterTimeout);
-          }
-
           splitterEndpoint = vm.instance.addEndpoint(domCircleElId, {
             anchor: 'Center',
             cssClass: 'splitter-endpoint',
@@ -377,7 +377,7 @@ angular.module(PKG.name + '.commons')
           });
           addListenersForEndpoint(splitterEndpoint, domCircleElId);
         });
-      }, 1000);
+      });
     }
 
     function addConnections() {
@@ -394,15 +394,22 @@ angular.module(PKG.name + '.commons')
           target: conn.to
         };
 
-        if (conn.hasOwnProperty('condition')) {
-          connObj.source = vm.instance.getEndpoints(`${conn.from}_condition_${conn.condition}`)[0];
-        } else if (conn.hasOwnProperty('port')) {
-          connObj.source = vm.instance.getEndpoints(`${conn.from}_port_${conn.port}`)[0];
-        }
+        let newConn;
 
-        let newConn = vm.instance.connect(connObj);
-        if (targetNode.type === 'condition' || sourceNode.type === 'action' || targetNode.type === 'action') {
-          newConn.setType('dashed');
+        if (conn.hasOwnProperty('port')) {
+          $timeout(() => {
+            connObj.source = vm.instance.getEndpoints(`${conn.from}_port_${conn.port}`)[0];
+            newConn = vm.instance.connect(connObj);
+            repaintEverything();
+          }, 200);
+        } else {
+          if (conn.hasOwnProperty('condition')) {
+            connObj.source = vm.instance.getEndpoints(`${conn.from}_condition_${conn.condition}`)[0];
+          }
+          newConn = vm.instance.connect(connObj);
+          if (targetNode.type === 'condition' || sourceNode.type === 'action' || targetNode.type === 'action') {
+            newConn.setType('dashed');
+          }
         }
       });
     }

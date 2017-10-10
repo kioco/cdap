@@ -50,15 +50,15 @@ angular.module(PKG.name + '.commons')
 
           splitterPopover.$promise
             .then(() => {
-              showPopover(500);
+              showPopover();
             });
         };
 
         // Need to do this because for some reason calling show() immediately will not place the popup
         // at the right position
-        const showPopover = (delay) => {
+        const showPopover = () => {
           cancelTimer();
-          delayOpenTimer = $timeout(splitterPopover.show, delay);
+          delayOpenTimer = $timeout(splitterPopover.show);
         };
 
         const cancelTimer = () => {
@@ -72,7 +72,7 @@ angular.module(PKG.name + '.commons')
             createPopover();
           } else if (newValue && oldValue && newValue.length !== oldValue.length) {
             splitterPopover.hide();
-            showPopover(500);
+            showPopover();
           }
         });
         scope.$on('$destroy', function () {
