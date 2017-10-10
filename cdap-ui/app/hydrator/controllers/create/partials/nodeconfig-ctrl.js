@@ -168,10 +168,12 @@ class HydratorPlusPlusNodeConfigCtrl {
 
     if (schemaArr && Array.isArray(schemaArr)) {
       angular.forEach(schemaArr, (schemaObj) => {
-        try {
-          this.avsc.parse(schemaObj.schema);
-        } catch (e) {
-          this.state.schemaAdvance = true;
+        if (schemaObj.schema) {
+          try {
+            this.avsc.parse(schemaObj.schema);
+          } catch (e) {
+            this.state.schemaAdvance = true;
+          }
         }
       });
     }

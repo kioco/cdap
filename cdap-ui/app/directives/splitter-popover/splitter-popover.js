@@ -15,7 +15,7 @@
 */
 
 angular.module(PKG.name + '.commons')
-  .directive('mySplitterPopover', function($popover, GLOBALS) {
+  .directive('mySplitterPopover', function($popover, GLOBALS, $timeout) {
     return {
       restrict: 'A',
       scope: {
@@ -32,8 +32,9 @@ angular.module(PKG.name + '.commons')
         targetElement.removeAttr('data-ports');
 
         let splitterPopover;
+        let delayOpenTimer;
 
-        const showPopover = () => {
+        const createPopover = () => {
           if (!scope.ports || (scope.ports && !scope.ports.length) || (scope.ports[0].name === GLOBALS.defaultSchemaName)) {
             return;
           }
@@ -43,31 +44,43 @@ angular.module(PKG.name + '.commons')
             trigger: 'manual',
             placement: 'right',
             container: '.node-splitter-endpoint',
-            customClass: 'my-splitter-popover'
+            customClass: 'my-splitter-popover',
+            scope: scope
           });
 
-          splitterPopover.$scope.ports = scope.ports;
-          splitterPopover.$scope.nodeName = scope.nodeName;
-
           splitterPopover.$promise
-            .then(function () {
-              if (splitterPopover && typeof splitterPopover.show === 'function') {
-                splitterPopover.show();
-              }
+            .then(() => {
+              showPopover(500);
             });
         };
 
-        const hidePopover = () => {
-          if (!splitterPopover) { return; }
-
-          splitterPopover.hide();
-          splitterPopover.destroy();
-          splitterPopover = null;
+        // Need to do this because for some reason calling show() immediately will not place the popup
+        // at the right position
+        const showPopover = (delay) => {
+          cancelTimer();
+          delayOpenTimer = $timeout(splitterPopover.show, delay);
         };
 
-        scope.$watch('ports', () => {
-          hidePopover();
-          showPopover();
+        const cancelTimer = () => {
+          if (delayOpenTimer) {
+            $timeout.cancel(delayOpenTimer);
+          }
+        };
+
+        scope.$watch('ports', (newValue, oldValue) => {
+          if (!splitterPopover) {
+            createPopover();
+          } else if (newValue && oldValue && newValue.length !== oldValue.length) {
+            splitterPopover.hide();
+            showPopover(500);
+          }
+        });
+        scope.$on('$destroy', function () {
+          if (splitterPopover) {
+            splitterPopover.destroy();
+            splitterPopover = null;
+          }
+          cancelTimer();
         });
 
       }

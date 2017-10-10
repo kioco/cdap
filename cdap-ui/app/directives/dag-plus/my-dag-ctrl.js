@@ -67,7 +67,8 @@ angular.module(PKG.name + '.commons')
         fitToScreenTimeout,
         initTimeout,
         metricsPopoverTimeout,
-        resetTimeout;
+        resetTimeout,
+        splitterTimeout;
 
     var Mousetrap = window.CaskCommon.Mousetrap;
 
@@ -341,9 +342,7 @@ angular.module(PKG.name + '.commons')
       });
       newFalseEndpoint.hideOverlay('noLabel');
 
-      // addListenersForEndpoint(newTrueEndpoint, `#${nodeName} .endpoint-circle-right`,'yesLabel');
       addListenersForEndpoint(newTrueEndpoint, trueEndpointDOMElId,'yesLabel');
-      // addListenersForEndpoint(newFalseEndpoint, `#${nodeName} .endpoint-circle-bottom`,'noLabel');
       addListenersForEndpoint(newFalseEndpoint, falseEndpointDOMElId,'noLabel');
 
       conditionNodes.push(nodeName);
@@ -354,19 +353,31 @@ angular.module(PKG.name + '.commons')
         return;
       }
 
-      angular.forEach(node.outputSchema, (outputSchema) => {
-        let domCircleElId = node.name + '_port_' + outputSchema.name;
+      splitterTimeout = $timeout(() => {
+        angular.forEach(node.outputSchema, (outputSchema) => {
+          let domCircleElId = node.name + '_port_' + outputSchema.name;
 
-        let splitterEndpoint = vm.instance.addEndpoint(domCircleElId, {
-          anchor: 'Center',
-          cssClass: 'splitter-endpoint',
-          isSource: true,
-          maxConnections: -1,
-          endpoint: 'Dot'
+          let domCircleElIdEndpoints = vm.instance.getEndpoints(domCircleElId);
+          if (domCircleElIdEndpoints && domCircleElIdEndpoints.length) {
+            return;
+          }
+
+          let splitterEndpoint;
+
+          if (splitterTimeout) {
+            $timeout.cancel(splitterTimeout);
+          }
+
+          splitterEndpoint = vm.instance.addEndpoint(domCircleElId, {
+            anchor: 'Center',
+            cssClass: 'splitter-endpoint',
+            isSource: true,
+            maxConnections: -1,
+            endpoint: 'Dot'
+          });
+          addListenersForEndpoint(splitterEndpoint, domCircleElId);
         });
-
-        addListenersForEndpoint(splitterEndpoint, domCircleElId);
-      });
+      }, 1000);
     }
 
     function addConnections() {
@@ -537,22 +548,41 @@ angular.module(PKG.name + '.commons')
     }
 
     function addListenersForEndpoint(endpoint, domCircleElId, labelId) {
-      let domCircleEl = document.getElementById(domCircleElId);
+      let domCircleEl, domCircleElIdEndpoints;
 
       endpoint.canvas.addEventListener('mouseover', function() {
-        if (!domCircleEl.classList.contains('hover')) {
-          domCircleEl.classList.add('hover');
+        domCircleEl = document.getElementById(domCircleElId);
+
+        if (!domCircleEl) {
+          domCircleElIdEndpoints = vm.instance.getEndpoints(domCircleElId);
+          angular.forEach(domCircleElIdEndpoints, (endpoint) => {
+            vm.instance.deleteEndpoint(endpoint);
+          });
+        } else {
+          if (!domCircleEl.classList.contains('hover')) {
+            domCircleEl.classList.add('hover');
+          }
+          if (labelId) {
+            endpoint.showOverlay(labelId);
+          }
         }
-        if (labelId) {
-          endpoint.showOverlay(labelId);
-        }
+
       });
       endpoint.canvas.addEventListener('mouseout', function() {
-        if (domCircleEl.classList.contains('hover')) {
-          domCircleEl.classList.remove('hover');
-        }
-        if (labelId) {
-          endpoint.hideOverlay(labelId);
+        domCircleEl = document.getElementById(domCircleElId);
+
+        if (!domCircleEl) {
+          domCircleElIdEndpoints = vm.instance.getEndpoints(domCircleElId);
+          angular.forEach(domCircleElIdEndpoints, (endpoint) => {
+            vm.instance.deleteEndpoint(endpoint);
+          });
+        } else {
+          if (domCircleEl.classList.contains('hover')) {
+            domCircleEl.classList.remove('hover');
+          }
+          if (labelId) {
+            endpoint.hideOverlay(labelId);
+          }
         }
       });
       endpoint.canvas.addEventListener('mousedown', function() {
@@ -1128,6 +1158,7 @@ angular.module(PKG.name + '.commons')
       $timeout.cancel(fitToScreenTimeout);
       $timeout.cancel(initTimeout);
       $timeout.cancel(metricsPopoverTimeout);
+      $timeout.cancel(splitterTimeout);
       angular.forEach(selectedConnections, function(selectedConnObj) {
         removeContextMenuEventListener(selectedConnObj);
       });

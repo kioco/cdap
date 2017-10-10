@@ -22,8 +22,6 @@
       .my-splitter-popover {
         z-index: 1;
         min-width: 80px;
-        margin-top: -21px;
-        margin-left: 11px;
 
         .popover-content {
           padding: 10px;
@@ -37,8 +35,12 @@
           .endpoint-circle {
             position: relative;
             display: inline-flex;
-            top: -4px;
+            top: -3px;
             right: -20px;
+
+            &.disabled {
+              top: 2px;
+            }
           }
         }
       }

@@ -136,13 +136,6 @@
                   ng-attr-id="{{node.name + '_condition_false'}}">
               <div class="endpoint-caret" ng-if="!DAGPlusPlusCtrl.isDisabled"></div>
             </div>
-            <!-- div ng-if="node.type === 'splittertransform'">
-              <my-splitter-popover
-                node-name="node.name"
-                ports="node.outputSchema">
-              </my-splitter-popover>
-            </div> -->
-
             <div ng-if="node.error">
               <div class="error-node-notification"
                    ng-if="node.errorCount > 0"
