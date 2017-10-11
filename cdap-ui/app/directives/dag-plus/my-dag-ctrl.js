@@ -399,7 +399,9 @@ angular.module(PKG.name + '.commons')
         if (conn.hasOwnProperty('port')) {
           $timeout(() => {
             connObj.source = vm.instance.getEndpoints(`${conn.from}_port_${conn.port}`)[0];
+            vm.instance.unbind('connection');
             newConn = vm.instance.connect(connObj);
+            vm.instance.bind('connection', addConnection);
             repaintEverything();
           }, 200);
         } else {
