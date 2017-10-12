@@ -707,10 +707,14 @@ class HydratorPlusPlusConfigStore {
   getStages() {
     return this.getState().config.stages || [];
   }
+  getSourceConnections(nodeId) {
+    return this.state.config.connections.filter( conn => conn.to === nodeId );
+  }
   getSourceNodes(nodeId) {
     let nodesMap = {};
     this.state.__ui__.nodes.forEach( node => nodesMap[node.name] = node );
-    return this.state.config.connections.filter( conn => conn.to === nodeId ).map( matchedConnection => nodesMap[matchedConnection.from] );
+    return this.getSourceConnections(nodeId)
+      .map(matchedConnection => nodesMap[matchedConnection.from] );
   }
   editNodeProperties(nodeId, nodeConfig) {
     let nodes = this.state.__ui__.nodes;

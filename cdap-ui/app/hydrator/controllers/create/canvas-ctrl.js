@@ -89,13 +89,13 @@ class HydratorPlusPlusCreateCanvasCtrl {
             rPlugin: ['HydratorPlusPlusNodeService', 'HydratorPlusPlusConfigStore', 'GLOBALS', function(HydratorPlusPlusNodeService, HydratorPlusPlusConfigStore, GLOBALS) {
               let pluginId = pluginNode.name;
               let appType = HydratorPlusPlusConfigStore.getAppType();
-
-              let sourceConn = HydratorPlusPlusConfigStore
+              let sourceConnections = HydratorPlusPlusConfigStore.getSourceConnections(pluginId);
+              let sourceNodes = HydratorPlusPlusConfigStore
                 .getSourceNodes(pluginId)
                 .filter(node => Array.isArray(node.outputSchema));
               let artifactVersion = HydratorPlusPlusConfigStore.getArtifact().version;
               return HydratorPlusPlusNodeService
-                .getPluginInfo(pluginNode, appType, sourceConn, artifactVersion)
+                .getPluginInfo(pluginNode, appType, sourceConnections, sourceNodes, artifactVersion)
                 .then((nodeWithInfo) => {
                   let pluginType = nodeWithInfo.type || nodeWithInfo.plugin.type;
                   return {
