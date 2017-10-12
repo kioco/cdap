@@ -15,7 +15,7 @@
 */
 
 angular.module(PKG.name + '.commons')
-  .directive('mySplitterPopover', function($popover, GLOBALS, $timeout) {
+  .directive('mySplitterPopover', function($popover, GLOBALS) {
     return {
       restrict: 'A',
       scope: {
@@ -32,7 +32,6 @@ angular.module(PKG.name + '.commons')
         targetElement.removeAttr('data-ports');
 
         let splitterPopover;
-        let delayOpenTimer;
 
         const createPopover = () => {
           if (!scope.ports || (scope.ports && !scope.ports.length) || (scope.ports[0].name === GLOBALS.defaultSchemaName)) {
@@ -45,34 +44,14 @@ angular.module(PKG.name + '.commons')
             placement: 'right',
             container: '.node-splitter-endpoint',
             customClass: 'my-splitter-popover',
-            scope: scope
+            scope: scope,
+            show: true
           });
-
-          splitterPopover.$promise
-            .then(() => {
-              showPopover();
-            });
         };
 
-        // Need to do this because for some reason calling show() immediately will not place the popup
-        // at the right position
-        const showPopover = () => {
-          cancelTimer();
-          delayOpenTimer = $timeout(splitterPopover.show);
-        };
-
-        const cancelTimer = () => {
-          if (delayOpenTimer) {
-            $timeout.cancel(delayOpenTimer);
-          }
-        };
-
-        scope.$watch('ports', (newValue, oldValue) => {
+        scope.$watch('ports', () => {
           if (!splitterPopover) {
             createPopover();
-          } else if (newValue && oldValue && newValue.length !== oldValue.length) {
-            splitterPopover.hide();
-            showPopover();
           }
         });
         scope.$on('$destroy', function () {
@@ -80,7 +59,6 @@ angular.module(PKG.name + '.commons')
             splitterPopover.destroy();
             splitterPopover = null;
           }
-          cancelTimer();
         });
 
       }

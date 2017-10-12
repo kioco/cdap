@@ -67,8 +67,7 @@ angular.module(PKG.name + '.commons')
         fitToScreenTimeout,
         initTimeout,
         metricsPopoverTimeout,
-        resetTimeout,
-        splitterTimeout;
+        resetTimeout;
 
     var Mousetrap = window.CaskCommon.Mousetrap;
 
@@ -353,30 +352,24 @@ angular.module(PKG.name + '.commons')
         return;
       }
 
-      if (splitterTimeout) {
-        $timeout.cancel(splitterTimeout);
-      }
+      angular.forEach(node.outputSchema, (outputSchema) => {
+        let domCircleElId = node.name + '_port_' + outputSchema.name;
 
-      splitterTimeout = $timeout(() => {
-        angular.forEach(node.outputSchema, (outputSchema) => {
-          let domCircleElId = node.name + '_port_' + outputSchema.name;
+        let domCircleElIdEndpoints = vm.instance.getEndpoints(domCircleElId);
+        if (domCircleElIdEndpoints && domCircleElIdEndpoints.length) {
+          return;
+        }
 
-          let domCircleElIdEndpoints = vm.instance.getEndpoints(domCircleElId);
-          if (domCircleElIdEndpoints && domCircleElIdEndpoints.length) {
-            return;
-          }
+        let splitterEndpoint;
 
-          let splitterEndpoint;
-
-          splitterEndpoint = vm.instance.addEndpoint(domCircleElId, {
-            anchor: 'Center',
-            cssClass: 'splitter-endpoint',
-            isSource: true,
-            maxConnections: -1,
-            endpoint: 'Dot'
-          });
-          addListenersForEndpoint(splitterEndpoint, domCircleElId);
+        splitterEndpoint = vm.instance.addEndpoint(domCircleElId, {
+          anchor: 'Center',
+          cssClass: 'splitter-endpoint',
+          isSource: true,
+          maxConnections: -1,
+          endpoint: 'Dot'
         });
+        addListenersForEndpoint(splitterEndpoint, domCircleElId);
       });
     }
 
@@ -394,24 +387,15 @@ angular.module(PKG.name + '.commons')
           target: conn.to
         };
 
-        let newConn;
+        if (conn.hasOwnProperty('condition')) {
+          connObj.source = vm.instance.getEndpoints(`${conn.from}_condition_${conn.condition}`)[0];
+        } else if (conn.hasOwnProperty('port')) {
+          connObj.source = vm.instance.getEndpoints(`${conn.from}_port_${conn.port}`)[0];
+        }
 
-        if (conn.hasOwnProperty('port')) {
-          $timeout(() => {
-            connObj.source = vm.instance.getEndpoints(`${conn.from}_port_${conn.port}`)[0];
-            vm.instance.unbind('connection');
-            newConn = vm.instance.connect(connObj);
-            vm.instance.bind('connection', addConnection);
-            repaintEverything();
-          }, 200);
-        } else {
-          if (conn.hasOwnProperty('condition')) {
-            connObj.source = vm.instance.getEndpoints(`${conn.from}_condition_${conn.condition}`)[0];
-          }
-          newConn = vm.instance.connect(connObj);
-          if (targetNode.type === 'condition' || sourceNode.type === 'action' || targetNode.type === 'action') {
-            newConn.setType('dashed');
-          }
+        let newConn = vm.instance.connect(connObj);
+        if (targetNode.type === 'condition' || sourceNode.type === 'action' || targetNode.type === 'action') {
+          newConn.setType('dashed');
         }
       });
     }
@@ -1167,7 +1151,6 @@ angular.module(PKG.name + '.commons')
       $timeout.cancel(fitToScreenTimeout);
       $timeout.cancel(initTimeout);
       $timeout.cancel(metricsPopoverTimeout);
-      $timeout.cancel(splitterTimeout);
       angular.forEach(selectedConnections, function(selectedConnObj) {
         removeContextMenuEventListener(selectedConnObj);
       });
