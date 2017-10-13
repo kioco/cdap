@@ -105,7 +105,11 @@ function ComplexSchemaController (avsc, SCHEMA_TYPES, $scope, uuid, $timeout, Sc
     };
     if ((!strJson || strJson === 'record') && !vm.isDisabled) {
       vm.addField();
-      recordName = vm.recordName || 'a' + uuid.v4().split('-').join('');
+      let recordNameWithIndex;
+      if (vm.isRecordSchema && vm.typeIndex) {
+        recordNameWithIndex = 'record' + vm.typeIndex;
+      }
+      recordName = vm.recordName || recordNameWithIndex || 'a' + uuid.v4().split('-').join('');
       vm.formatOutput();
       return;
     }
@@ -169,7 +173,7 @@ function ComplexSchemaController (avsc, SCHEMA_TYPES, $scope, uuid, $timeout, Sc
 
       // Validate
       try {
-        avsc.parse(obj);
+        avsc.parse(obj, { wrapUnions: true });
       } catch (e) {
         let err = '' + e;
         err = err.split(':');
@@ -216,7 +220,8 @@ angular.module(PKG.name+'.commons')
     scope: {
       model: '=ngModel',
       recordName: '=',
-      hideHeader: '=',
+      isRecordSchema: '=',
+      typeIndex: '=',
       parentFormatOutput: '&',
       isDisabled: '=',
       schemaPrefix: '=',
@@ -233,6 +238,7 @@ angular.module(PKG.name+'.commons')
     scope: {
       model: '=ngModel',
       recordName: '=',
+      typeIndex: '=',
       parentFormatOutput: '&',
       isDisabled: '=',
       schemaPrefix: '='
@@ -241,7 +247,8 @@ angular.module(PKG.name+'.commons')
       let elemString = `<my-complex-schema
                           ng-model="model"
                           record-name="recordName"
-                          hide-header="true"
+                          type-index="typeIndex"
+                          is-record-schema="true"
                           parent-format-output="parentFormatOutput()"
                           is-disabled="isDisabled"
                           schema-prefix="schemaPrefix"
