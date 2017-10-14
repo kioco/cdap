@@ -27,6 +27,7 @@ class HydratorPlusPlusCreateCanvasCtrl {
     this.nodes = [];
     this.connections = [];
     this.previewMode = false;
+    this.nodeConfigModalOpen = false;
 
     DAGPlusPlusNodesStore.registerOnChangeListener(() => {
       this.setActiveNode();
@@ -53,7 +54,7 @@ class HydratorPlusPlusCreateCanvasCtrl {
 
   setActiveNode() {
     var nodeId = this.DAGPlusPlusNodesStore.getActiveNodeId();
-    if (!nodeId) {
+    if (!nodeId || this.nodeConfigModalOpen) {
       return;
     }
     var pluginNode;
@@ -113,7 +114,14 @@ class HydratorPlusPlusCreateCanvasCtrl {
           }
         })
         .result
-        .then(this.deleteNode.bind(this), this.deleteNode.bind(this)); // Both close and ESC events in the modal are considered as SUCCESS and ERROR in promise callback. Hence the same callback for both success & failure.
+        .then(this.modalCallback.bind(this), this.modalCallback.bind(this)); // Both close and ESC events in the modal are considered as SUCCESS and ERROR in promise callback. Hence the same callback for both success & failure.
+
+    this.nodeConfigModalOpen = true;
+  }
+
+  modalCallback() {
+    this.deleteNode();
+    this.nodeConfigModalOpen = false;
   }
 
   deleteNode() {
