@@ -91,9 +91,7 @@ class HydratorPlusPlusCreateCanvasCtrl {
               let pluginId = pluginNode.name;
               let appType = HydratorPlusPlusConfigStore.getAppType();
               let sourceConnections = HydratorPlusPlusConfigStore.getSourceConnections(pluginId);
-              let sourceNodes = HydratorPlusPlusConfigStore
-                .getSourceNodes(pluginId)
-                .filter(node => Array.isArray(node.outputSchema));
+              let sourceNodes = HydratorPlusPlusConfigStore.getSourceNodes(pluginId);
               let artifactVersion = HydratorPlusPlusConfigStore.getArtifact().version;
               return HydratorPlusPlusNodeService
                 .getPluginInfo(pluginNode, appType, sourceConnections, sourceNodes, artifactVersion)

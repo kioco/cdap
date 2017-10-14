@@ -44,6 +44,10 @@ class HydratorPlusPlusNodeService {
         return false;
       };
 
+      if (typeof sourceNode.outputSchema === 'string') {
+        sourceNode.outputSchema = [this.getOutputSchemaObj(sourceNode.outputSchema)];
+      }
+
       if (sourceNode.outputSchema[0].name !== this.GLOBALS.defaultSchemaName) {
         let sourcePort = sourceConnections[0].port;
         let sourceSchema = sourceNode.outputSchema.filter(outputSchema => outputSchema.name === sourcePort);

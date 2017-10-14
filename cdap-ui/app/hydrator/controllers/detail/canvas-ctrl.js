@@ -87,9 +87,7 @@ angular.module(PKG.name + '.feature.hydrator')
                 let appType = HydratorPlusPlusDetailNonRunsStore.getAppType();
                 let artifactVersion = HydratorPlusPlusDetailNonRunsStore.getArtifact().version;
                 let sourceConnections = HydratorPlusPlusDetailNonRunsStore.getSourceConnections(pluginId);
-                let sourceNodes = HydratorPlusPlusDetailNonRunsStore
-                  .getSourceNodes(pluginId)
-                  .filter(node => Array.isArray(node.outputSchema));
+                let sourceNodes = HydratorPlusPlusDetailNonRunsStore.getSourceNodes(pluginId);
                 return HydratorPlusPlusNodeService
                   .getPluginInfo(pluginNode, appType, sourceConnections, sourceNodes, artifactVersion)
                   .then((nodeWithInfo) => (
