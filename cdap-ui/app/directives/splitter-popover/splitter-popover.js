@@ -49,26 +49,8 @@ angular.module(PKG.name + '.commons')
           });
         };
 
-        const differentPorts = (newPorts, oldPorts) => {
-          if (newPorts.length !== oldPorts.length) {
-            return true;
-          }
-
-          for (let i = 0; i < newPorts.length; i++) {
-            if (newPorts[i].name !== oldPorts[i].name || newPorts[i].schema !== oldPorts[i].schema) {
-              return true;
-            }
-          }
-
-          return false;
-        };
-
         scope.$watch('ports', (newValue, oldValue) => {
           if (!splitterPopover) {
-            createPopover();
-          } else if (splitterPopover && differentPorts(newValue, oldValue)) {
-            splitterPopover.destroy();
-            splitterPopover = null;
             createPopover();
           }
         });
