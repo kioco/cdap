@@ -49,7 +49,7 @@ angular.module(PKG.name + '.commons')
           });
         };
 
-        scope.$watch('ports', (newValue, oldValue) => {
+        scope.$watch('ports', () => {
           if (!splitterPopover) {
             createPopover();
           }
