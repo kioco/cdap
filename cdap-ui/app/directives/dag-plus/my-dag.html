@@ -113,7 +113,7 @@
             <div class="endpoint-circle"
                   ng-if="node.type !== 'splittertransform'"
                   ng-class="{'disabled': DAGPlusPlusCtrl.isDisabled, 'endpoint-circle-right': node.type === 'condition'}"
-                  ng-attr-id="{{node.type === 'condition' ? node.name + '_condition_true': ''}}"
+                  ng-attr-id="{{node.type === 'condition' ? node.name + '_condition_true' : ''}}"
                   ng-mouseup="DAGPlusPlusCtrl.selectEndpoint($event, node)">
               <div class="endpoint-caret" ng-if="!DAGPlusPlusCtrl.isDisabled"></div>
             </div>

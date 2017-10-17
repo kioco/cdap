@@ -271,12 +271,12 @@ angular.module(PKG.name + '.commons')
       }
 
       angular.forEach($scope.nodes, function (node) {
-        if (node.type !== 'condition' && node.type !== 'splittertransform') {
-          initNormalNode(node.name);
-        } else if (node.type === 'condition') {
+        if (node.type === 'condition') {
           initConditionNode(node.name);
-        } else {
+        } else if (node.type === 'splittertransform') {
           initSplitterNode(node);
+        } else {
+          initNormalNode(node.name);
         }
 
         vm.instance.makeTarget(node.name, {

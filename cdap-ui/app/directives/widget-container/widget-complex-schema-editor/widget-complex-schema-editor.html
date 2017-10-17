@@ -32,7 +32,7 @@
     </div>
     <div ng-if="SchemaEditor.schemas.length > 1">
       <div ng-repeat="schemaObj in SchemaEditor.schemas track by $index">
-        <div ng-click="SchemaEditor.currentIndex = $index" style="cursor:pointer" class="title">
+        <div ng-click="SchemaEditor.currentIndex = $index" class="schema-title">
           <i class="fa" ng-class="{'fa-arrow-right': SchemaEditor.currentIndex !== $index, 'fa-arrow-down': SchemaEditor.currentIndex === $index}"></i>
           <span>{{schemaObj.name | caskCapitalizeFilter}}</span>
         </div>
