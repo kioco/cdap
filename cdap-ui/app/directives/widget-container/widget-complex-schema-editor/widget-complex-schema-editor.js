@@ -14,7 +14,7 @@
  * the License.
  */
 
-function ComplexSchemaEditorController($scope, EventPipe, $timeout, myAlertOnValium, avsc, myHelpers, IMPLICIT_SCHEMA) {
+function ComplexSchemaEditorController($scope, EventPipe, $timeout, myAlertOnValium, avsc, myHelpers, IMPLICIT_SCHEMA, HydratorPlusPlusNodeService) {
   'ngInject';
 
   let vm = this;
@@ -73,6 +73,14 @@ function ComplexSchemaEditorController($scope, EventPipe, $timeout, myAlertOnVal
 
 
   vm.formatOutput = (updateDefault = false) => {
+    if (!Array.isArray(vm.schemas)) {
+      let schema = vm.schemas.schema;
+      if (!schema) {
+        schema = '';
+      }
+
+      vm.schemas = [HydratorPlusPlusNodeService.getOutputSchemaObj(schema)];
+    }
     let newOutputSchemas = vm.schemas.map(schema => {
       if (typeof schema.schema !== 'string') {
         schema.schema = JSON.stringify(schema.schema);

@@ -44,7 +44,7 @@ class HydratorPlusPlusNodeService {
         return false;
       };
 
-      if (typeof sourceNode.outputSchema === 'string') {
+      if (!sourceNode.outputSchema || typeof sourceNode.outputSchema === 'string') {
         sourceNode.outputSchema = [this.getOutputSchemaObj(sourceNode.outputSchema)];
       }
 

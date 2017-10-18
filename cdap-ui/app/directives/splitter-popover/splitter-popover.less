@@ -16,12 +16,19 @@
 
 @import "../../styles/variables.less";
 
+@splitter-border-color: #0076dc;
+
 .box {
   .node {
     .node-splitter-endpoint {
       .my-splitter-popover {
         z-index: 1;
         min-width: 80px;
+        border-color: @splitter-border-color;
+
+        .arrow {
+          border-right-color: @splitter-border-color;
+        }
 
         .popover-content {
           padding: 10px;
