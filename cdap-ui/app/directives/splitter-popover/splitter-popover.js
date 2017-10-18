@@ -52,6 +52,11 @@ angular.module(PKG.name + '.commons')
         scope.$watch('ports', () => {
           if (!splitterPopover) {
             createPopover();
+          } else {
+            if (scope.ports && scope.ports.length && scope.ports[0].name === GLOBALS.defaultSchemaName) {
+              splitterPopover.destroy();
+              splitterPopover = null;
+            }
           }
         });
         scope.$on('$destroy', function () {
