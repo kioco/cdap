@@ -108,12 +108,21 @@ angular.module(PKG.name + '.commons')
         if (vm.isDisabled) {
           // Disable all endpoints
           angular.forEach($scope.nodes, function (node) {
-            var endpointArr = vm.instance.getEndpoints(node.name);
-
-            if (endpointArr) {
-              angular.forEach(endpointArr, function (endpoint) {
-                endpoint.setEnabled(false);
+            if (node.plugin.type === 'condition') {
+              let endpoints = [`${node.name}_condition_true`, `${node.name}_condition_false`];
+              angular.forEach(endpoints, (endpoint) => {
+                disableEndpoints(endpoint);
               });
+            } else if (node.plugin.type === 'splittertransform')  {
+              let portNames = node.outputSchema.map(port => port.name);
+              let endpoints = portNames.map(portName => `${node.name}_port_${portName}`);
+              angular.forEach(endpoints, (endpoint) => {
+                // different from others because the name here is the uuid of the splitter endpoint,
+                // not the id of DOM element
+                disableEndpoint(endpoint);
+              });
+            } else {
+              disableEndpoints(node.name);
             }
           });
         }
@@ -412,7 +421,7 @@ angular.module(PKG.name + '.commons')
         };
 
         if (conn.hasOwnProperty('condition')) {
-          connObj.source = vm.instance.getEndpoint(`${conn.from}_condition_${conn.condition}`);
+          connObj.source = vm.instance.getEndpoints(`${conn.from}_condition_${conn.condition}`)[0];
         } else if (conn.hasOwnProperty('port')) {
           connObj.source = vm.instance.getEndpoint(`${conn.from}_port_${conn.port}`);
         }
@@ -583,6 +592,23 @@ angular.module(PKG.name + '.commons')
 
       vm.instance.deleteEndpoint(endpoint);
       vm.instance.bind('connectionDetached', removeConnection);
+    }
+
+    function disableEndpoint(uuid) {
+      let endpoint = vm.instance.getEndpoint(uuid);
+      if (endpoint) {
+        endpoint.setEnabled(false);
+      }
+    }
+
+    function disableEndpoints(elementId) {
+      let endpointArr = vm.instance.getEndpoints(elementId);
+
+      if (endpointArr) {
+        angular.forEach(endpointArr, (endpoint) => {
+          endpoint.setEnabled(false);
+        });
+      }
     }
 
     function onStartDetach() {
