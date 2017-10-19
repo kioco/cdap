@@ -30,21 +30,14 @@
 
   <div class="row">
     <div class="col-xs-12">
-      <div ng-if="GetSchemaModalController.schemas.length > 1">
-        <div ng-repeat="schema in GetSchemaModalController.schemas">
-          <span>{{schema.name | caskCapitalizeFilter}}</span>
-          <my-complex-schema
-            ng-model="schema.schema"
-            is-disabled="true"
-            ng-if="schema.schema && !GetSchemaModalController.error">
-          </my-complex-schema>
-        </div>
-      </div>
-      <div ng-if="GetSchemaModalController.schemas.length <= 1">
+      <div ng-repeat="schema in GetSchemaModalController.schemas">
+        <span ng-if="schema.name !== 'etlSchemaBody'">
+          {{schema.name | caskCapitalizeFilter}}
+        </span>
         <my-complex-schema
-          ng-model="GetSchemaModalController.schemas[0].schema"
+          ng-model="schema.schema"
           is-disabled="true"
-          ng-if="GetSchemaModalController.schemas[0].schema && !GetSchemaModalController.error">
+          ng-if="schema.schema && !GetSchemaModalController.error">
         </my-complex-schema>
       </div>
 

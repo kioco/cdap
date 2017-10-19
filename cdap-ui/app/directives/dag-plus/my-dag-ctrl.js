@@ -43,6 +43,7 @@ angular.module(PKG.name + '.commons')
     var connectionDropped = false;
     var dagMenu;
     let conditionNodes = [];
+    let splitterPorts = [];
 
     vm.pluginsMap = {};
 
@@ -314,6 +315,7 @@ angular.module(PKG.name + '.commons')
         return;
       }
       let trueEndpointDOMElId = nodeName + '_condition_true';
+      let trueEndpointDOMEl = document.querySelector(`#${trueEndpointDOMElId}`);
       let newTrueEndpoint = vm.instance.addEndpoint(trueEndpointDOMElId, {
         anchor: 'Center',
         cssClass: 'condition-endpoint condition-endpoint-true',
@@ -328,6 +330,7 @@ angular.module(PKG.name + '.commons')
       newTrueEndpoint.hideOverlay('yesLabel');
 
       let falseEndpointDOMElId = nodeName + '_condition_false';
+      let falseEndpointDOMEl = document.querySelector(`#${falseEndpointDOMElId}`);
       let newFalseEndpoint = vm.instance.addEndpoint(falseEndpointDOMElId, {
         anchor: 'Center',
         cssClass: 'condition-endpoint condition-endpoint-false',
@@ -341,8 +344,8 @@ angular.module(PKG.name + '.commons')
       });
       newFalseEndpoint.hideOverlay('noLabel');
 
-      addListenersForEndpoint(newTrueEndpoint, trueEndpointDOMElId,'yesLabel');
-      addListenersForEndpoint(newFalseEndpoint, falseEndpointDOMElId,'noLabel');
+      addListenersForEndpoint(newTrueEndpoint, trueEndpointDOMEl,'yesLabel');
+      addListenersForEndpoint(newFalseEndpoint, falseEndpointDOMEl,'noLabel');
 
       conditionNodes.push(nodeName);
     }
@@ -352,46 +355,46 @@ angular.module(PKG.name + '.commons')
         return;
       }
 
-      let existingPorts = $scope.connections
-        .filter(conn => conn.from === node.name)
-        .map(conn => conn.port);
-
       let newPorts = node.outputSchema
         .map(schema => schema.name);
 
-      let portsRemoved = false;
+      let portsChanged = !_.isEqual(splitterPorts, newPorts);
 
-      angular.forEach(existingPorts, (port) => {
-        if (newPorts.indexOf(port) === -1) {
-          let portElId = node.name + '_port_' + port;
-          deleteEndpoints(portElId);
-          portsRemoved = true;
-        }
-      });
-
-      if (portsRemoved) {
-        DAGPlusPlusNodesActionsFactory.setConnections($scope.connections);
+      if (!portsChanged) {
+        return;
       }
+
+      angular.forEach(splitterPorts, (port) => {
+        let portElId = node.name + '_port_' + port;
+        deleteEndpoints(portElId);
+      });
 
       angular.forEach(node.outputSchema, (outputSchema) => {
         let domCircleElId = node.name + '_port_' + outputSchema.name;
-
-        let domCircleElIdEndpoints = vm.instance.getEndpoints(domCircleElId);
-        if (domCircleElIdEndpoints && domCircleElIdEndpoints.length) {
-          return;
-        }
-
         let splitterEndpoint;
 
-        splitterEndpoint = vm.instance.addEndpoint(domCircleElId, {
+        let domCircleEl = document.getElementsByClassName(domCircleElId);
+        domCircleEl = domCircleEl[domCircleEl.length - 1];
+
+        splitterEndpoint = vm.instance.addEndpoint(domCircleEl, {
           anchor: 'Center',
           cssClass: 'splitter-endpoint',
           isSource: true,
           maxConnections: -1,
-          endpoint: 'Dot'
+          endpoint: 'Dot',
+          uuid: domCircleElId
         });
-        addListenersForEndpoint(splitterEndpoint, domCircleElId);
+        addListenersForEndpoint(splitterEndpoint, domCircleEl);
       });
+
+      DAGPlusPlusNodesActionsFactory.setConnections($scope.connections);
+      splitterPorts = newPorts;
+    }
+
+    function getPortEndpointClass(splitterNodeClassList) {
+      let portElemClassList = [].slice.call(splitterNodeClassList);
+      let portClass = _.find(portElemClassList, (className) => className.indexOf('_port_') !== -1);
+      return portClass;
     }
 
     function addConnections() {
@@ -409,9 +412,9 @@ angular.module(PKG.name + '.commons')
         };
 
         if (conn.hasOwnProperty('condition')) {
-          connObj.source = vm.instance.getEndpoints(`${conn.from}_condition_${conn.condition}`)[0];
+          connObj.source = vm.instance.getEndpoint(`${conn.from}_condition_${conn.condition}`);
         } else if (conn.hasOwnProperty('port')) {
-          connObj.source = vm.instance.getEndpoints(`${conn.from}_port_${conn.port}`)[0];
+          connObj.source = vm.instance.getEndpoint(`${conn.from}_port_${conn.port}`);
         }
 
         let newConn = vm.instance.connect(connObj);
@@ -438,14 +441,17 @@ angular.module(PKG.name + '.commons')
       };
 
       let sourceIsCondition = newConnObj.sourceId.indexOf('_condition_') !== -1;
-      let sourceIsPort = newConnObj.sourceId.indexOf('_port_') !== -1;
+      let sourceIsPort = newConnObj.source.className.indexOf('_port_') !== -1;
+
+      let sourceIdSplit;
 
       if (sourceIsCondition || sourceIsPort) {
-        let sourceIdSplit = newConnObj.sourceId.split('_');
-
         if (sourceIsCondition) {
+          sourceIdSplit = newConnObj.sourceId.split('_');
           connection.condition = sourceIdSplit[2] === 'true';
-        } else if (sourceIsPort) {
+        } else {
+          let portClass = getPortEndpointClass(newConnObj.source.classList);
+          sourceIdSplit = portClass.split('_');
           connection.port = sourceIdSplit[2];
         }
         connection.from = sourceIdSplit[0];
@@ -456,11 +462,15 @@ angular.module(PKG.name + '.commons')
     }
 
     function removeConnection(detachedConnObj, updateStore = true) {
-      if (detachedConnObj.sourceId.indexOf('_condition_') !== -1 || detachedConnObj.sourceId.indexOf('_port_') !== -1) {
-        detachedConnObj.sourceId = detachedConnObj.sourceId.split('_')[0];
+      let connObj = Object.assign({}, detachedConnObj);
+      if (detachedConnObj.sourceId.indexOf('_condition_') !== -1) {
+        connObj.sourceId = detachedConnObj.sourceId.split('_')[0];
+      } else if (detachedConnObj.source.className.indexOf('_port_') !== -1) {
+        let portClass = getPortEndpointClass(detachedConnObj.source.classList);
+        connObj.sourceId = portClass.split('_')[0];
       }
       var connectionIndex = _.findIndex($scope.connections, function (conn) {
-        return conn.from === detachedConnObj.sourceId && conn.to === detachedConnObj.targetId;
+        return conn.from === connObj.sourceId && conn.to === connObj.targetId;
       });
       if (connectionIndex !== -1) {
         $scope.connections.splice(connectionIndex, 1);
@@ -486,8 +496,8 @@ angular.module(PKG.name + '.commons')
       vm.instance.unbind('connectionDetached');
       angular.forEach(selectedConnections, function (selectedConnectionObj) {
         removeContextMenuEventListener(selectedConnectionObj);
-        vm.instance.detach(selectedConnectionObj);
         removeConnection(selectedConnectionObj, false);
+        vm.instance.detach(selectedConnectionObj);
       });
       vm.instance.bind('connectionDetached', removeConnection);
       selectedConnections = [];
@@ -562,19 +572,16 @@ angular.module(PKG.name + '.commons')
 
     function deleteEndpoints(elementId) {
       vm.instance.unbind('connectionDetached');
+      let endpoint = vm.instance.getEndpoint(elementId);
 
-      let connectionsFromEndpoint = vm.instance.getConnections({
-        source: elementId
-      });
-      angular.forEach(connectionsFromEndpoint, (conn) => {
-        vm.instance.detach(conn);
-        removeConnection(conn, false);
-      });
-      let endpoints = vm.instance.getEndpoints(elementId);
-      angular.forEach(endpoints, (endpoint) => {
-        vm.instance.deleteEndpoint(endpoint);
-      });
+      if (endpoint.connections) {
+        angular.forEach(endpoint.connections, (conn) => {
+          removeConnection(conn, false);
+          vm.instance.detach(conn);
+        });
+      }
 
+      vm.instance.deleteEndpoint(endpoint);
       vm.instance.bind('connectionDetached', removeConnection);
     }
 
@@ -582,36 +589,21 @@ angular.module(PKG.name + '.commons')
       connectionDropped = false;
     }
 
-    function addListenersForEndpoint(endpoint, domCircleElId, labelId) {
-      let domCircleEl;
-
+    function addListenersForEndpoint(endpoint, domCircleEl, labelId) {
       endpoint.canvas.addEventListener('mouseover', function() {
-        domCircleEl = document.getElementById(domCircleElId);
-
-        if (!domCircleEl) {
-          deleteEndpoints(domCircleElId);
-        } else {
-          if (!domCircleEl.classList.contains('hover')) {
-            domCircleEl.classList.add('hover');
-          }
-          if (labelId) {
-            endpoint.showOverlay(labelId);
-          }
+        if (!domCircleEl.classList.contains('hover')) {
+          domCircleEl.classList.add('hover');
         }
-
+        if (labelId) {
+          endpoint.showOverlay(labelId);
+        }
       });
       endpoint.canvas.addEventListener('mouseout', function() {
-        domCircleEl = document.getElementById(domCircleElId);
-
-        if (!domCircleEl) {
-          deleteEndpoints(domCircleElId);
-        } else {
-          if (domCircleEl.classList.contains('hover')) {
-            domCircleEl.classList.remove('hover');
-          }
-          if (labelId) {
-            endpoint.hideOverlay(labelId);
-          }
+        if (domCircleEl.classList.contains('hover')) {
+          domCircleEl.classList.remove('hover');
+        }
+        if (labelId) {
+          endpoint.hideOverlay(labelId);
         }
       });
       endpoint.canvas.addEventListener('mousedown', function() {
@@ -623,8 +615,11 @@ angular.module(PKG.name + '.commons')
       // return false if connection already exists, which will prevent the connecton from being formed
       if (connectionDropped) { return false; }
 
-      if (connObj.sourceId.indexOf('_condition_') !== -1 || connObj.sourceId.indexOf('_port_') !== -1) {
+      if (connObj.sourceId.indexOf('_condition_') !== -1) {
         connObj.sourceId = connObj.sourceId.split('_')[0];
+      } else if (connObj.connection.source.className.indexOf('_port_') !== -1) {
+        let portClass = getPortEndpointClass(connObj.connection.source.classList);
+        connObj.sourceId = portClass.split('_')[0];
       }
 
       var exists = _.find($scope.connections, function (conn) {

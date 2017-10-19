@@ -13,16 +13,14 @@
   License for the specific language governing permissions and limitations under
   the License.
 -->
-<div class="popover">
-  <div class="arrow"></div>
-  <div class="popover-content">
-    <div ng-repeat="port in ports">
-      <span class="port-name">{{ port.name | caskCapitalizeFilter }}</span>
-      <div class="endpoint-circle"
-            ng-class="{'disabled': isDisabled}"
-            ng-attr-id="{{nodeName + '_port_' + port.name}}">
-        <div class="endpoint-caret" ng-if="!isDisabled"></div>
-      </div>
+
+<div class="arrow"></div>
+<div class="popover-content">
+  <div ng-repeat="port in ports">
+    <span class="port-name">{{ port.name | caskCapitalizeFilter }}</span>
+    <div class="endpoint-circle {{nodeName}}_port_{{port.name}}"
+          ng-class="{'disabled': isDisabled}">
+      <div class="endpoint-caret" ng-if="!isDisabled"></div>
     </div>
   </div>
 </div>

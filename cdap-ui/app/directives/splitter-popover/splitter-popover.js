@@ -15,7 +15,7 @@
 */
 
 angular.module(PKG.name + '.commons')
-  .directive('mySplitterPopover', function($popover, GLOBALS) {
+  .directive('mySplitterPopover', function() {
     return {
       restrict: 'A',
       scope: {
@@ -23,49 +23,6 @@ angular.module(PKG.name + '.commons')
         ports: '=',
         isDisabled: '='
       },
-      link: function(scope, element) {
-        const templateUrl = 'splitter-popover/splitter-popover.html';
-
-        let targetElement = angular.element(element);
-        targetElement.removeAttr('my-splitter-popover');
-        targetElement.removeAttr('data-node-name');
-        targetElement.removeAttr('data-ports');
-
-        let splitterPopover;
-
-        const createPopover = () => {
-          if (!scope.ports || (scope.ports && !scope.ports.length) || (scope.ports[0].name === GLOBALS.defaultSchemaName)) {
-            return;
-          }
-
-          splitterPopover = $popover(targetElement, {
-            templateUrl,
-            trigger: 'manual',
-            placement: 'right',
-            container: '.node-splitter-endpoint',
-            customClass: 'my-splitter-popover',
-            scope: scope,
-            show: true
-          });
-        };
-
-        scope.$watch('ports', () => {
-          if (!splitterPopover) {
-            createPopover();
-          } else {
-            if (scope.ports && scope.ports.length && scope.ports[0].name === GLOBALS.defaultSchemaName) {
-              splitterPopover.destroy();
-              splitterPopover = null;
-            }
-          }
-        });
-        scope.$on('$destroy', function () {
-          if (splitterPopover) {
-            splitterPopover.destroy();
-            splitterPopover = null;
-          }
-        });
-
-      }
+      templateUrl: 'splitter-popover/splitter-popover.html'
     };
   });
