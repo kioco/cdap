@@ -138,11 +138,7 @@ var rules = [
     test: /\.svg$/,
     use: [
       {
-        loader: 'svg-sprite-loader',
-        // options: {
-        //   // prefixize: false,
-        //   runtimeCompat: true
-        // }
+        loader: 'svg-sprite-loader'
       }
     ]
   }
