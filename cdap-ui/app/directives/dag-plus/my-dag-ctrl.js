@@ -719,6 +719,7 @@ angular.module(PKG.name + '.commons')
       resetTimeout = $timeout(function () {
         vm.instance.reset();
         conditionNodes = [];
+        splitterNodesPorts = {};
 
         $scope.nodes = DAGPlusPlusNodesStore.getNodes();
         $scope.connections = DAGPlusPlusNodesStore.getConnections();
