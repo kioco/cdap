@@ -135,13 +135,14 @@ var rules = [
     use: 'url-loader'
   },
   {
-    test: /\.svg/,
+    test: /\.svg$/,
     use: [
       {
         loader: 'svg-sprite-loader',
-        options: {
-          prefixize: false
-        }
+        // options: {
+        //   // prefixize: false,
+        //   runtimeCompat: true
+        // }
       }
     ]
   }

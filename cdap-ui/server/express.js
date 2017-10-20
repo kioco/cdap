@@ -35,7 +35,7 @@ var express = require('express'),
     finalhandler = require('finalhandler'),
     serveFavicon = require('serve-favicon'),
     request = require('request'),
-    uuid = require('node-uuid'),
+    uuid = require('uuid/v4'),
     log4js = require('log4js'),
     bodyParser = require('body-parser'),
     DLL_PATH = path.normalize(__dirname + '/../dll'),
@@ -557,7 +557,7 @@ function makeApp (authAddress, cdapConfig, uiSettings) {
       var date = new Date();
       date.setDate(date.getDate() + 365); // Expires after a year.
       if(!req.cookies.bcookie) {
-        res.cookie('bcookie', uuid.v4(), { expires: date });
+        res.cookie('bcookie', uuid(), { expires: date });
       } else {
         res.cookie('bcookie', req.cookies.bcookie, { expires: date });
       }
@@ -572,7 +572,7 @@ function makeApp (authAddress, cdapConfig, uiSettings) {
       var date = new Date();
       date.setDate(date.getDate() + 365); // Expires after a year.
       if(!req.cookies.bcookie) {
-        res.cookie('bcookie', uuid.v4(), { expires: date });
+        res.cookie('bcookie', uuid(), { expires: date });
       } else {
         res.cookie('bcookie', req.cookies.bcookie, { expires: date });
       }
@@ -588,7 +588,7 @@ function makeApp (authAddress, cdapConfig, uiSettings) {
       var date = new Date();
       date.setDate(date.getDate() + 365); // Expires after a year.
       if(!req.cookies.bcookie) {
-        res.cookie('bcookie', uuid.v4(), { expires: date });
+        res.cookie('bcookie', uuid(), { expires: date });
       } else {
         res.cookie('bcookie', req.cookies.bcookie, { expires: date });
       }

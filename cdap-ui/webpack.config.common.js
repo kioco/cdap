@@ -96,9 +96,10 @@ var rules = [
     use: [
       {
         loader: 'svg-sprite-loader',
-        options: {
-          prefixize: false
-        }
+        // options: {
+        //   // prefixize: false
+        //   runtimeCompat: true
+        // }
       }
     ]
   }
