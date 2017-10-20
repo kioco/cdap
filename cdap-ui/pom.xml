@@ -202,7 +202,15 @@
                   <yarnVersion>v1.2.1</yarnVersion>
                 </configuration>
               </execution>
-
+              <execution>
+                <id>install-node-gyp</id>
+                <goals>
+                  <goal>yarn</goal>
+                </goals>
+                <configuration>
+                  <arguments>global add node-gyp</arguments>
+                </configuration>
+              </execution>
               <execution>
                 <id>yarn-install</id>
                 <goals>
@@ -212,7 +220,6 @@
                   <arguments>install --silent --frozen-lockfile</arguments>
                 </configuration>
               </execution>
-
               <execution>
                 <id>bower-install</id>
                 <goals>
@@ -222,7 +229,6 @@
                   <arguments>install --allow-root</arguments>
                 </configuration>
               </execution>
-
               <execution>
                 <id>build-ui</id>
                 <goals>
@@ -232,7 +238,6 @@
                   <arguments>run cdap-full-build</arguments>
                 </configuration>
               </execution>
-
               <execution>
                 <id>clean-node-modules</id>
                 <goals>
@@ -242,9 +247,6 @@
                   <arguments>install --production</arguments>
                 </configuration>
               </execution>
-
-
-
             </executions>
           </plugin>
           <plugin>
