@@ -71,7 +71,7 @@
     "gulp-wrapper": "1.0.0",
     "html-webpack-plugin": "2.30.1",
     "jest-cli": "16.0.2",
-    "jshint": "2.9.2",
+    "jshint": "2.9.5",
     "json-loader": "0.5.7",
     "lodash-webpack-plugin": "0.11.4",
     "main-bower-files": "2.13.1",
