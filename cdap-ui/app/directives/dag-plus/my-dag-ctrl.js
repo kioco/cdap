@@ -43,7 +43,7 @@ angular.module(PKG.name + '.commons')
     var connectionDropped = false;
     var dagMenu;
     let conditionNodes = [];
-    let splitterPorts = [];
+    let splitterNodesPorts = {};
 
     vm.pluginsMap = {};
 
@@ -367,6 +367,8 @@ angular.module(PKG.name + '.commons')
       let newPorts = node.outputSchema
         .map(schema => schema.name);
 
+      let splitterPorts = splitterNodesPorts[node.name];
+
       let portsChanged = !_.isEqual(splitterPorts, newPorts);
 
       if (!portsChanged) {
@@ -397,7 +399,7 @@ angular.module(PKG.name + '.commons')
       });
 
       DAGPlusPlusNodesActionsFactory.setConnections($scope.connections);
-      splitterPorts = newPorts;
+      splitterNodesPorts[node.name] = newPorts;
     }
 
     function getPortEndpointClass(splitterNodeClassList) {
@@ -940,6 +942,9 @@ angular.module(PKG.name + '.commons')
     vm.onNodeDelete = function (event, node) {
       event.stopPropagation();
       DAGPlusPlusNodesActionsFactory.removeNode(node.name);
+      if (Object.keys(splitterNodesPorts).indexOf(node.name) !== -1) {
+        delete splitterNodesPorts[node.name];
+      }
       vm.instance.unbind('connectionDetached');
       selectedConnections = selectedConnections.filter(function(selectedConnObj) {
         if (selectedConnObj.sourceId === node.name || selectedConnObj.targetId === node.name) {
@@ -949,6 +954,14 @@ angular.module(PKG.name + '.commons')
       });
       vm.instance.unmakeSource(node.name);
       vm.instance.unmakeTarget(node.name);
+      let nodeType = node.plugin.type || node.type;
+      if (nodeType === 'splittertransform') {
+        let portNames = node.outputSchema.map(port => port.name);
+        let endpoints = portNames.map(portName => `${node.name}_port_${portName}`);
+        angular.forEach(endpoints, (endpoint) => {
+          deleteEndpoints(endpoint);
+        });
+      }
       vm.instance.remove(node.name);
       vm.instance.bind('connectionDetached', removeConnection);
     };
