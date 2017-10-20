@@ -353,8 +353,8 @@ angular.module(PKG.name + '.commons')
       });
       newFalseEndpoint.hideOverlay('noLabel');
 
-      addListenersForEndpoint(newTrueEndpoint, trueEndpointDOMEl,'yesLabel');
-      addListenersForEndpoint(newFalseEndpoint, falseEndpointDOMEl,'noLabel');
+      addListenersForEndpoint(newTrueEndpoint, trueEndpointDOMEl, 'yesLabel');
+      addListenersForEndpoint(newFalseEndpoint, falseEndpointDOMEl, 'noLabel');
 
       conditionNodes.push(nodeName);
     }
@@ -585,7 +585,7 @@ angular.module(PKG.name + '.commons')
       vm.instance.unbind('connectionDetached');
       let endpoint = vm.instance.getEndpoint(elementId);
 
-      if (endpoint.connections) {
+      if (endpoint && endpoint.connections) {
         angular.forEach(endpoint.connections, (conn) => {
           removeConnection(conn, false);
           vm.instance.detach(conn);
@@ -943,9 +943,19 @@ angular.module(PKG.name + '.commons')
     vm.onNodeDelete = function (event, node) {
       event.stopPropagation();
       DAGPlusPlusNodesActionsFactory.removeNode(node.name);
+
       if (Object.keys(splitterNodesPorts).indexOf(node.name) !== -1) {
         delete splitterNodesPorts[node.name];
       }
+      let nodeType = node.plugin.type || node.type;
+      if (nodeType === 'splittertransform' && node.outputSchema && Array.isArray(node.outputSchema)) {
+        let portNames = node.outputSchema.map(port => port.name);
+        let endpoints = portNames.map(portName => `${node.name}_port_${portName}`);
+        angular.forEach(endpoints, (endpoint) => {
+          deleteEndpoints(endpoint);
+        });
+      }
+
       vm.instance.unbind('connectionDetached');
       selectedConnections = selectedConnections.filter(function(selectedConnObj) {
         if (selectedConnObj.sourceId === node.name || selectedConnObj.targetId === node.name) {
@@ -955,14 +965,7 @@ angular.module(PKG.name + '.commons')
       });
       vm.instance.unmakeSource(node.name);
       vm.instance.unmakeTarget(node.name);
-      let nodeType = node.plugin.type || node.type;
-      if (nodeType === 'splittertransform') {
-        let portNames = node.outputSchema.map(port => port.name);
-        let endpoints = portNames.map(portName => `${node.name}_port_${portName}`);
-        angular.forEach(endpoints, (endpoint) => {
-          deleteEndpoints(endpoint);
-        });
-      }
+
       vm.instance.remove(node.name);
       vm.instance.bind('connectionDetached', removeConnection);
     };
