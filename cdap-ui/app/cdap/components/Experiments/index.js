@@ -20,7 +20,7 @@ import experimentsStore from 'components/Experiments/store';
 import {getExperimentsList} from 'components/Experiments/store/ActionCreator';
 import ExperimentsListView from 'components/Experiments/ListView';
 
-class ExperimentsClass extends Component {
+class Experiments extends Component {
   componentWillMount() {
     getExperimentsList();
   }
@@ -33,4 +33,4 @@ class ExperimentsClass extends Component {
   }
 }
 
-export default ExperimentsClass;
+export default Experiments;
