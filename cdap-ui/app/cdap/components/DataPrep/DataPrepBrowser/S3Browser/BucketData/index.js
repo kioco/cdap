@@ -26,6 +26,7 @@ import classnames from 'classnames';
 import EmptyMessageContainer from 'components/EmptyMessageContainer';
 import T from 'i18n-react';
 import IconSVG from 'components/IconSVG';
+import moment from 'moment';
 
 const PREFIX = 'features.DataPrep.DataPrepBrowser.S3Browser.BucketData';
 const props = {
@@ -142,29 +143,33 @@ const TableContents = ({enableRouting, search, data, onWorkspaceCreate, prefix, 
     return (
       <div className="s3-buckets">
         {
-          filteredData.map(file => (
-            <ContainerElement
-              className={classnames({'disabled': !file.directory && !file.wrangle})}
-              to={`${pathname}?prefix=${getPrefix(file, prefix)}`}
-              onClick={onClickHandler.bind(null, enableRouting, onWorkspaceCreate, file, prefix)}
-            >
-              <div className="row">
-                <div className="col-xs-3">
-                  {renderIcon(file.type)}
-                  {file.name}
+          filteredData.map(file => {
+            let lastModified = moment(file['last-modified']).format('MM/DD/YY HH:mm');
+
+            return (
+              <ContainerElement
+                className={classnames({'disabled': !file.directory && !file.wrangle})}
+                to={`${pathname}?prefix=${getPrefix(file, prefix)}`}
+                onClick={onClickHandler.bind(null, enableRouting, onWorkspaceCreate, file, prefix)}
+              >
+                <div className="row">
+                  <div className="col-xs-3">
+                    {renderIcon(file.type)}
+                    {file.name}
+                  </div>
+                  <div className="col-xs-3">
+                    {file['owner']}
+                  </div>
+                  <div className="col-xs-3">
+                    {file['size']}
+                  </div>
+                  <div className="col-xs-3">
+                    {lastModified}
+                  </div>
                 </div>
-                <div className="col-xs-3">
-                  {file['owner']}
-                </div>
-                <div className="col-xs-3">
-                  {file['size']}
-                </div>
-                <div className="col-xs-3">
-                  {file['last-modified']}
-                </div>
-              </div>
-            </ContainerElement>
-          ))
+              </ContainerElement>
+            );
+          })
         }
       </div>
     );
