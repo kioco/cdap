@@ -26,7 +26,7 @@ import classnames from 'classnames';
 import EmptyMessageContainer from 'components/EmptyMessageContainer';
 import T from 'i18n-react';
 import IconSVG from 'components/IconSVG';
-import moment from 'moment';
+import {humanReadableDate} from 'services/helpers';
 
 const PREFIX = 'features.DataPrep.DataPrepBrowser.S3Browser.BucketData';
 const props = {
@@ -144,7 +144,7 @@ const TableContents = ({enableRouting, search, data, onWorkspaceCreate, prefix, 
       <div className="s3-buckets">
         {
           filteredData.map(file => {
-            let lastModified = moment(file['last-modified']).format('MM/DD/YY HH:mm');
+            let lastModified = humanReadableDate(file['last-modified'], true);
 
             return (
               <ContainerElement
